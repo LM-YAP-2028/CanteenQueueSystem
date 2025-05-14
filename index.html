@@ -1,153 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Canteen Registration Queuing System</title>
+    <meta charset="UTF-8" />
+    <link rel = "stylesheet" href = "designs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&family=Paprika&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Share+Tech&display=swap" rel="stylesheet">
+    <title>Canteen Registration Queuing System</title>
 </head>
 <body>
-  <h1>Canteen Registration Queuing System</h1>
-  <hr>
+    <header>
+        <img src = "logo.png">
+        <h1>Canteen Registration Queuing System</h1>
+    </header>
 
-  <input type="text" id="name" placeholder="Enter name" required>
-  <input type="text" id="purpose" placeholder="Enter your purpose of visit" required>
-  <input type="number" id="sID" placeholder="Enter your student ID" required>
-  <button onclick="addToQueue()">Add to Queue</button>
+    <br><br>
 
-  <hr>
-  <h3>Queue:</h3>
-  <p id="queueDisplay"></p>
-  <hr>
+    <section class = "container">
+        <section class = "card">
+            <fieldset>
+                <legend>ENTER STUDENT INFORMATION</legend><br>
+                
+                <input type="text" id="name" placeholder="Enter Your Name" required>
+                <input type="text" id="purpose" placeholder="Enter Your Purpose of Visit" required>
+                <input type="number" id="sID" placeholder="Enter Your Student ID" required>
+                <button onclick="addToQueue()">Add to Queue</button>
+            </fieldset>
+        </section>
 
-  <h2>Admin Panel</h2>
-  <h4>Serving:</h4>
-  <p id="serving">No one is currently being served.</p>
-  <button onclick="removeFromQueue()">Served</button>
+        <section class = "card">
+            <fieldset>
+                <legend>CURRENT QUEUE</legend><br>
 
-  <hr>
-  <h2>Check Your Position in Queue</h2>
-  <input type="number" id="checkID" placeholder="Enter your student ID">
-  <button onclick="checkPositionByID()">Check Position</button>
-  <p id="positionResult"></p>
+                <p id="queueDisplay"></p>
+            </fieldset>
+        </section>
+    </section>
 
-  <script>
-    var queue = [];
+    <section class = "container">
+        <section class = "card">
+            <fieldset>
+                <legend>ADMIN PANEL</legend><br><br>
 
-    // Load queue from localStorage
-    var saved = localStorage.getItem("queue");
-    if (saved) {
-      queue = saved.split("|").filter(function (entry) {
-        return entry.trim() !== "";
-      });
-    }
+                <div class = "gogo">
+                    <h2>Serving:</h2>
+                    <p id="serving">No one is currently being served.</p>
+                </div>
 
-    function setCookie(name, value) {
-      document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + "; path=/";
-    }
+                <br>
 
-    function getAllCookies() {
-      var cookies = {};
-      var decoded = decodeURIComponent(document.cookie).split("; ");
-      for (var i = 0; i < decoded.length; i++) {
-        var parts = decoded[i].split("=");
-        cookies[parts[0]] = parts[1];
-      }
-      return cookies;
-    }
+                <button onclick="removeFromQueue()">Served</button>
+            </fieldset>
+        </section>
 
-    function deleteCookie(name) {
-      document.cookie = encodeURIComponent(name) + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    }
+        <section class = "card">
+            <fieldset>
+                <legend>CHECK STUDENT POSITION IN QUEUE</legend><br><br>
 
-    function updateDisplay() {
-      var display = "";
+                 <input type="number" id="checkID" placeholder="Enter a Student ID"><br>
+                <button onclick="checkPositionByID()">Check Position</button>
+                <p id="positionResult"></p>
+            </fieldset>
+        </section>
+    </section>
 
-      for (var i = 0; i < queue.length; i++) {
-        display += (i + 1) + ". " + queue[i] + "<br>";
-      }
+    <script>
+        var queue = [];
 
-      if (queue.length === 0) {
-        display = "Queue is empty.";
-      }
-
-      document.getElementById("queueDisplay").innerHTML = display;
-      if (queue.length > 0) {
-        document.getElementById("serving").innerHTML = queue[0];
-      } else {
-        document.getElementById("serving").innerHTML = "No one is currently being served.";
-      }
-
-
-      localStorage.setItem("queue", queue.join("|"));
-    }
-
-    function addToQueue() {
-      var name = document.getElementById("name").value;
-      var purpose = document.getElementById("purpose").value;
-      var sID = document.getElementById("sID").value;
-
-      if (name === "" || purpose === "" || sID === "") {
-        alert("Please fill in all fields.");
-        return;
-      }
-
-      for (var i = 0; i < queue.length; i++) {
-        if (queue[i].endsWith(" - " + sID)) {
-          alert("You are already in the queue.");
-          return;
-        }
-      }
-
-      var entry = name + " - " + purpose + " - " + sID;
-      queue.push(entry);
-      setCookie("entry_" + sID, entry);
-      updateDisplay();
-
-      document.getElementById("name").value = "";
-      document.getElementById("purpose").value = "";
-      document.getElementById("sID").value = "";
-    }
-
-    function removeFromQueue() {
-      if (queue.length > 0) {
-        var removed = queue.shift();
-
-        var parts = removed.split(" - ");
-        if (parts.length === 3) {
-          var removedID = parts[2].trim();
-          deleteCookie("entry_" + removedID);
+        // Load queue from localStorage
+        var saved = localStorage.getItem("queue");
+        if (saved) {
+        queue = saved.split("|").filter(function (entry) {
+            return entry.trim() !== "";
+        });
         }
 
+        function setCookie(name, value) {
+        document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + "; path=/";
+        }
+
+        function getAllCookies() {
+        var cookies = {};
+        var decoded = decodeURIComponent(document.cookie).split("; ");
+        for (var i = 0; i < decoded.length; i++) {
+            var parts = decoded[i].split("=");
+            cookies[parts[0]] = parts[1];
+        }
+        return cookies;
+        }
+
+        function deleteCookie(name) {
+        document.cookie = encodeURIComponent(name) + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        }
+
+        function updateDisplay() {
+        var display = "";
+
+        for (var i = 0; i < queue.length; i++) {
+            display += (i + 1) + ". " + queue[i] + "<br>";
+        }
+
+        if (queue.length === 0) {
+            display = "Queue is empty.";
+        }
+
+        document.getElementById("queueDisplay").innerHTML = display;
+        if (queue.length > 0) {
+            document.getElementById("serving").innerHTML = queue[0];
+        } else {
+            document.getElementById("serving").innerHTML = "No one is currently being served.";
+        }
+
+
+        localStorage.setItem("queue", queue.join("|"));
+        }
+
+        function addToQueue() {
+        var name = document.getElementById("name").value;
+        var purpose = document.getElementById("purpose").value;
+        var sID = document.getElementById("sID").value;
+
+        if (name === "" || purpose === "" || sID === "") {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        for (var i = 0; i < queue.length; i++) {
+            if (queue[i].endsWith(" - " + sID)) {
+            alert("You are already in the queue.");
+            return;
+            }
+        }
+
+        var entry = name + " - " + purpose + " - " + sID;
+        queue.push(entry);
+        setCookie("entry_" + sID, entry);
         updateDisplay();
-      }
-    }
 
-    function checkPositionByID() {
-      var inputID = document.getElementById("checkID").value;
+        document.getElementById("name").value = "";
+        document.getElementById("purpose").value = "";
+        document.getElementById("sID").value = "";
+        }
 
-      if (inputID === "") {
-        document.getElementById("positionResult").innerHTML = "Please enter a student ID.";
-        return;
-      }
+        function removeFromQueue() {
+        if (queue.length > 0) {
+            var removed = queue.shift();
 
-      var cookies = getAllCookies();
-      var entry = cookies["entry_" + inputID];
+            var parts = removed.split(" - ");
+            if (parts.length === 3) {
+            var removedID = parts[2].trim();
+            deleteCookie("entry_" + removedID);
+            }
 
-      if (!entry) {
-        document.getElementById("positionResult").innerHTML = "No entry found for this ID.";
-        return;
-      }
+            updateDisplay();
+        }
+        }
 
-      var index = queue.indexOf(entry);
-      if (index >= 0) {
-        document.getElementById("positionResult").innerHTML = "Student ID " + inputID + " is at position " + (index + 1) + " in the queue.";
-      } else {
-        document.getElementById("positionResult").innerHTML = "Student ID " + inputID + " is not currently in the queue.";
-      }
-    }
+        function checkPositionByID() {
+        var inputID = document.getElementById("checkID").value;
 
-    window.onload = function () {
-      updateDisplay();
-    };
-  </script>
+        if (inputID === "") {
+            document.getElementById("positionResult").innerHTML = "Please enter a student ID.";
+            return;
+        }
+
+        var cookies = getAllCookies();
+        var entry = cookies["entry_" + inputID];
+
+        if (!entry) {
+            document.getElementById("positionResult").innerHTML = "No entry found for this ID.";
+            return;
+        }
+
+        var index = queue.indexOf(entry);
+        if (index >= 0) {
+            document.getElementById("positionResult").innerHTML = "Student ID " + inputID + " is at position " + (index + 1) + " in the queue.";
+        } else {
+            document.getElementById("positionResult").innerHTML = "Student ID " + inputID + " is not currently in the queue.";
+        }
+        }
+
+        window.onload = function () {
+        updateDisplay();
+        };
+    </script>
 </body>
 </html>
