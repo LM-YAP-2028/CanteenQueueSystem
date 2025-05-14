@@ -1,0 +1,72 @@
+body {
+    background-image: url(canteen.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: "Share Tech";
+    text-shadow: 2px 2px #afafaf;
+}
+header {
+    background: linear-gradient(to right, #90f4f9, #295e75);
+    color: white;
+    padding: 20px;
+    font-size: 20px;
+    text-shadow: 2px 2px #295e75;
+}
+header > img{
+    width: 100px;
+    margin-left: 25px;
+    margin-right: 20px;
+    float: left;
+}
+.container {
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+    justify-content: center;
+    display: flex;
+}
+.card {
+    width: 40%;
+    padding: 2%;
+    text-align: left;
+    background-color: white;
+    border-radius: 10px;
+    display: inline-block;
+    margin: 10px;
+    transition: ease-in-out 0.2s;
+}
+.card:hover {
+    scale: 1.05;
+}
+legend {
+    font-size: 25px;
+    text-align: center;
+}
+input {
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 4%;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+}
+button {
+    background: #0056b3;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: ease-in-out 0.2s;
+}
+button:hover{
+    background-color: #032244;
+}
+.gogo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.gogo h3, .gogo p {
+    margin: 0;
+}
