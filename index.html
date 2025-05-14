@@ -47,7 +47,6 @@
 
     function setCookie(name, value) {
       document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + "; path=/";
-      console.log("Cookie set:", name + "=" + value);
     }
 
     function getCookie(name) {
@@ -57,12 +56,14 @@
         var key = parts[0].trim();
         var val = parts[1];
         if (key === name) {
-          console.log("Cookie found:", key + "=" + val);
           return val;
         }
       }
-      console.log("Cookie not found:", name);
       return "";
+    }
+
+    function deleteCookie(name) {
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
 
     function updateDisplay() {
@@ -108,8 +109,8 @@
       queue.push(entry);
       updateDisplay();
 
-      // Save student ID to cookie
-      setCookie("studentID", sID);
+      // Save full entry to cookie
+      setCookie("myEntry", entry);
 
       document.getElementById("name").value = "";
       document.getElementById("purpose").value = "";
@@ -117,55 +118,33 @@
     }
 
     function removeFromQueue() {
-      if (queue.length > 0) {
-        queue.shift();
-        updateDisplay();
-      }
-    }
+          if (queue.length > 0) {
+            var removed = queue.shift();
 
-    function checkPosition() {
-      var idToCheck = document.getElementById("checkID").value.trim();
-      if (idToCheck === "") {
-        document.getElementById("positionResult").innerText = "Please enter a student ID.";
+            // If removed person is current user, clear cookie
+            var myEntry = getCookie("myEntry");
+            if (removed === myEntry) {
+              deleteCookie("myEntry");
+            }
+
+            updateDisplay();
+          }
+        }
+
+        function checkPosition() {
+      var entry = getCookie("myEntry");
+      var result = document.getElementById("positionResult");
+
+      if (entry === "") {
+        result.innerText = "No record found. Please register first.";
         return;
       }
 
-      var found = false;
-      for (var i = 0; i < queue.length; i++) {
-        var parts = queue[i].split(" - ");
-        if (parts.length >= 3 && parts[2].trim() === idToCheck) {
-          document.getElementById("positionResult").innerText = "Your position in the queue is: " + (i + 1);
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        document.getElementById("positionResult").innerText = "ID not found in queue.";
-      }
-    }
-
-    function checkMyPosition() {
-      var storedID = getCookie("studentID");
-      var output = document.getElementById("myPositionResult");
-
-      if (storedID === "") {
-        output.innerText = "No cookie found. Please register first.";
-        return;
-      }
-
-      var found = false;
-      for (var i = 0; i < queue.length; i++) {
-        var parts = queue[i].split(" - ");
-        if (parts.length >= 3 && parts[2].trim() === storedID.trim()) {
-          output.innerText = "Your position in the queue is: " + (i + 1);
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        output.innerText = "You are not in the queue.";
+      var index = queue.indexOf(entry);
+      if (index >= 0) {
+        result.innerText = "Your position in the queue is: " + (index + 1);
+      } else {
+        result.innerText = "You are not currently in the queue.";
       }
     }
 
