@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Canteen Registration Queuing System</title>
+</head>
+<body>
+  <h1>Canteen Registration Queuing System</h1>
+  <hr>
+
+  <input type="text" id="name" placeholder="Enter name" required>
+  <input type="text" id="purpose" placeholder="Enter your purpose of visit" required>
+  <input type="number" id="sID" placeholder="Enter your student ID" required>
+  <button onclick="addToQueue()">Add to Queue</button>
+
+  <hr>
+  <h3>Queue:</h3>
+  <p id="queueDisplay"></p>
+  <hr>
+
+  <h2>Admin Panel</h2>
+  <h4>Serving:</h4>
+  <p id="serving">No one is currently being served.</p>
+  <button onclick="removeFromQueue()">Served</button>
+
+  <hr>
+  <h2>Check Your Position in Queue</h2>
+  <input type="number" id="checkID" placeholder="Enter your student ID">
+  <button onclick="checkPosition()">Check Position</button>
+  <p id="positionResult"></p>
+
+  <hr>
+  <h2>Auto Check My Position (via Cookie)</h2>
+  <button onclick="checkMyPosition()">Check My Position</button>
+  <p id="myPositionResult"></p>
+
+  <script>
+    var queue = [];
+
+    // Load queue from localStorage
+    var saved = localStorage.getItem("queue");
+    if (saved) {
+      queue = saved.split("|").filter(function (entry) {
+        return entry.trim() !== "";
+      });
+    }
+
+    function setCookie(name, value) {
+      document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + "; path=/";
+      console.log("Cookie set:", name + "=" + value);
+    }
+
+    function getCookie(name) {
+      var decodedCookies = decodeURIComponent(document.cookie).split("; ");
+      for (var i = 0; i < decodedCookies.length; i++) {
+        var parts = decodedCookies[i].split("=");
+        var key = parts[0].trim();
+        var val = parts[1];
+        if (key === name) {
+          console.log("Cookie found:", key + "=" + val);
+          return val;
+        }
+      }
+      console.log("Cookie not found:", name);
+      return "";
+    }
+
+    function updateDisplay() {
+      var display = "";
+      for (var i = 0; i < queue.length; i++) {
+        display += (i + 1) + ". " + queue[i] + "<br>";
+      }
+
+      if (queue.length === 0) {
+        display = "Queue is empty.";
+      }
+
+      document.getElementById("queueDisplay").innerHTML = display;
+
+      if (queue.length > 0) {
+        document.getElementById("serving").innerHTML = queue[0];
+      } else {
+        document.getElementById("serving").innerHTML = "No one is currently being served.";
+      }
+
+      localStorage.setItem("queue", queue.join("|"));
+    }
+
+    function addToQueue() {
+      var name = document.getElementById("name").value.trim();
+      var purpose = document.getElementById("purpose").value.trim();
+      var sID = document.getElementById("sID").value.trim();
+
+      if (name === "" || purpose === "" || sID === "") {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      // Check for duplicates
+      for (var i = 0; i < queue.length; i++) {
+        if (queue[i].endsWith(" - " + sID)) {
+          alert("You are already in the queue.");
+          return;
+        }
+      }
+
+      var entry = name + " - " + purpose + " - " + sID;
+      queue.push(entry);
+      updateDisplay();
+
+      // Save student ID to cookie
+      setCookie("studentID", sID);
+
+      document.getElementById("name").value = "";
+      document.getElementById("purpose").value = "";
+      document.getElementById("sID").value = "";
+    }
+
+    function removeFromQueue() {
+      if (queue.length > 0) {
+        queue.shift();
+        updateDisplay();
+      }
+    }
+
+    function checkPosition() {
+      var idToCheck = document.getElementById("checkID").value.trim();
+      if (idToCheck === "") {
+        document.getElementById("positionResult").innerText = "Please enter a student ID.";
+        return;
+      }
+
+      var found = false;
+      for (var i = 0; i < queue.length; i++) {
+        var parts = queue[i].split(" - ");
+        if (parts.length >= 3 && parts[2].trim() === idToCheck) {
+          document.getElementById("positionResult").innerText = "Your position in the queue is: " + (i + 1);
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        document.getElementById("positionResult").innerText = "ID not found in queue.";
+      }
+    }
+
+    function checkMyPosition() {
+      var storedID = getCookie("studentID");
+      var output = document.getElementById("myPositionResult");
+
+      if (storedID === "") {
+        output.innerText = "No cookie found. Please register first.";
+        return;
+      }
+
+      var found = false;
+      for (var i = 0; i < queue.length; i++) {
+        var parts = queue[i].split(" - ");
+        if (parts.length >= 3 && parts[2].trim() === storedID.trim()) {
+          output.innerText = "Your position in the queue is: " + (i + 1);
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        output.innerText = "You are not in the queue.";
+      }
+    }
+
+    window.onload = function () {
+      updateDisplay();
+    };
+  </script>
+</body>
+</html>
