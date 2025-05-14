@@ -70,15 +70,20 @@
       }
 
       document.getElementById("queueDisplay").innerHTML = display;
-      document.getElementById("serving").innerHTML = queue.length > 0 ? queue[0] : "No one is currently being served.";
+      if (queue.length > 0) {
+        document.getElementById("serving").innerHTML = queue[0];
+      } else {
+        document.getElementById("serving").innerHTML = "No one is currently being served.";
+      }
+
 
       localStorage.setItem("queue", queue.join("|"));
     }
 
     function addToQueue() {
-      var name = document.getElementById("name").value.trim();
-      var purpose = document.getElementById("purpose").value.trim();
-      var sID = document.getElementById("sID").value.trim();
+      var name = document.getElementById("name").value;
+      var purpose = document.getElementById("purpose").value;
+      var sID = document.getElementById("sID").value;
 
       if (name === "" || purpose === "" || sID === "") {
         alert("Please fill in all fields.");
@@ -94,7 +99,7 @@
 
       var entry = name + " - " + purpose + " - " + sID;
       queue.push(entry);
-      setCookie("entry_" + sID, entry); // Store entry with ID-specific cookie
+      setCookie("entry_" + sID, entry);
       updateDisplay();
 
       document.getElementById("name").value = "";
@@ -106,7 +111,6 @@
       if (queue.length > 0) {
         var removed = queue.shift();
 
-        // Try to extract student ID from removed entry
         var parts = removed.split(" - ");
         if (parts.length === 3) {
           var removedID = parts[2].trim();
@@ -118,11 +122,10 @@
     }
 
     function checkPositionByID() {
-      var inputID = document.getElementById("checkID").value.trim();
-      var result = document.getElementById("positionResult");
+      var inputID = document.getElementById("checkID").value;
 
       if (inputID === "") {
-        result.innerText = "Please enter a student ID.";
+        document.getElementById("positionResult").innerHTML = "Please enter a student ID.";
         return;
       }
 
@@ -130,15 +133,15 @@
       var entry = cookies["entry_" + inputID];
 
       if (!entry) {
-        result.innerText = "No entry found for this ID.";
+        document.getElementById("positionResult").innerHTML = "No entry found for this ID.";
         return;
       }
 
       var index = queue.indexOf(entry);
       if (index >= 0) {
-        result.innerText = "Student ID " + inputID + " is at position " + (index + 1) + " in the queue.";
+        document.getElementById("positionResult").innerHTML = "Student ID " + inputID + " is at position " + (index + 1) + " in the queue.";
       } else {
-        result.innerText = "Student ID " + inputID + " is not currently in the queue.";
+        document.getElementById("positionResult").innerHTML = "Student ID " + inputID + " is not currently in the queue.";
       }
     }
 
