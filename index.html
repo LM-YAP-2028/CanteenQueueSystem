@@ -18,10 +18,15 @@
   <p id="queueDisplay"></p>
   <hr>
 
+  <h2>Admin Panel</h2>
+  <h4>Serving:</h4>
+  <p id="serving">No one is currently being served.</p>
+  <button onclick="removeFromQueue()">Served</button>
+
   <hr>
   <h2>Check Your Position in Queue</h2>
   <input type="number" id="checkID" placeholder="Enter your student ID">
-  <button onclick="checkPosition()">Check Position</button>
+  <button onclick="checkPositionByID()">Check Position</button>
   <p id="positionResult"></p>
 
   <script>
@@ -39,25 +44,23 @@
       document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + "; path=/";
     }
 
-    function getCookie(name) {
-      var decodedCookies = decodeURIComponent(document.cookie).split("; ");
-      for (var i = 0; i < decodedCookies.length; i++) {
-        var parts = decodedCookies[i].split("=");
-        var key = parts[0].trim();
-        var val = parts[1];
-        if (key === name) {
-          return val;
-        }
+    function getAllCookies() {
+      var cookies = {};
+      var decoded = decodeURIComponent(document.cookie).split("; ");
+      for (var i = 0; i < decoded.length; i++) {
+        var parts = decoded[i].split("=");
+        cookies[parts[0]] = parts[1];
       }
-      return "";
+      return cookies;
     }
 
     function deleteCookie(name) {
-      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = encodeURIComponent(name) + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
 
     function updateDisplay() {
       var display = "";
+
       for (var i = 0; i < queue.length; i++) {
         display += (i + 1) + ". " + queue[i] + "<br>";
       }
@@ -67,12 +70,7 @@
       }
 
       document.getElementById("queueDisplay").innerHTML = display;
-
-      if (queue.length > 0) {
-        document.getElementById("serving").innerHTML = queue[0];
-      } else {
-        document.getElementById("serving").innerHTML = "No one is currently being served.";
-      }
+      document.getElementById("serving").innerHTML = queue.length > 0 ? queue[0] : "No one is currently being served.";
 
       localStorage.setItem("queue", queue.join("|"));
     }
@@ -87,7 +85,6 @@
         return;
       }
 
-      // Check for duplicates
       for (var i = 0; i < queue.length; i++) {
         if (queue[i].endsWith(" - " + sID)) {
           alert("You are already in the queue.");
@@ -97,10 +94,8 @@
 
       var entry = name + " - " + purpose + " - " + sID;
       queue.push(entry);
+      setCookie("entry_" + sID, entry); // Store entry with ID-specific cookie
       updateDisplay();
-
-      // Save full entry to cookie
-      setCookie("myEntry", entry);
 
       document.getElementById("name").value = "";
       document.getElementById("purpose").value = "";
@@ -108,33 +103,42 @@
     }
 
     function removeFromQueue() {
-          if (queue.length > 0) {
-            var removed = queue.shift();
+      if (queue.length > 0) {
+        var removed = queue.shift();
 
-            // If removed person is current user, clear cookie
-            var myEntry = getCookie("myEntry");
-            if (removed === myEntry) {
-              deleteCookie("myEntry");
-            }
-
-            updateDisplay();
-          }
+        // Try to extract student ID from removed entry
+        var parts = removed.split(" - ");
+        if (parts.length === 3) {
+          var removedID = parts[2].trim();
+          deleteCookie("entry_" + removedID);
         }
 
-        function checkPosition() {
-      var entry = getCookie("myEntry");
+        updateDisplay();
+      }
+    }
+
+    function checkPositionByID() {
+      var inputID = document.getElementById("checkID").value.trim();
       var result = document.getElementById("positionResult");
 
-      if (entry === "") {
-        result.innerText = "No record found. Please register first.";
+      if (inputID === "") {
+        result.innerText = "Please enter a student ID.";
+        return;
+      }
+
+      var cookies = getAllCookies();
+      var entry = cookies["entry_" + inputID];
+
+      if (!entry) {
+        result.innerText = "No entry found for this ID.";
         return;
       }
 
       var index = queue.indexOf(entry);
       if (index >= 0) {
-        result.innerText = "Your position in the queue is: " + (index + 1);
+        result.innerText = "Student ID " + inputID + " is at position " + (index + 1) + " in the queue.";
       } else {
-        result.innerText = "You are not currently in the queue.";
+        result.innerText = "Student ID " + inputID + " is not currently in the queue.";
       }
     }
 
