@@ -36,7 +36,7 @@ header > img{
     transition: ease-in-out 0.2s;
 }
 .card:hover {
-    scale: 1.05;
+    scale: 1.005;
 }
 legend {
     font-size: 25px;
